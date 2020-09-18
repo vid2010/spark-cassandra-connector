@@ -211,6 +211,9 @@ object CassandraConnector extends Logging {
   }
 
   SerialShutdownHooks.add("Clearing session cache for C* connector", 200)(() => {
+    // do not remove, an error that may be thrown by the loading is handled by SerialShutdownHooks class
+    val check = sessionCache.getClass.getClassLoader.loadClass("com.datastax.spark.connector.util.ClassLoaderCheck").getSimpleName
+    logDebug("Class loader check: " + check)
     sessionCache.shutdown()
   })
 

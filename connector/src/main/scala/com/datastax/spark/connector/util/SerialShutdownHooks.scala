@@ -34,6 +34,9 @@ private[connector] object SerialShutdownHooks extends Logging {
           hook.task()
           logInfo(s"Successfully executed shutdown hook: ${hook.name}")
         } catch {
+          case exc: ClassNotFoundException if exc.getMessage.contains("ClassLoaderCheck") =>
+            // a temp workaround for spark-sql classloader problem, see SPARKC-620 PR for details
+            logDebug(s"Couldn't run shutdown hook ${hook.name} due to failed class loader check.")
           case exc: Throwable =>
             logError(s"Shutdown hook (${hook.name}) failed", exc)
         }
